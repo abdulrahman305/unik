@@ -447,3 +447,38 @@ unik search [image_name]
 ```
 
 * Searches available images. Optional filter by `image_name`
+
+---
+
+#### Documenting the `daemonCmd` variable
+
+The `daemonCmd` variable is a Cobra command that starts the UniK daemon process. It requires Docker to be installed and running on the system. The necessary Docker containers must be built for the daemon to work properly. The daemon also requires a configuration file with credentials and configuration information for the desired providers.
+
+Example usage:
+```
+unik daemon --f ./my-config.yaml --port 12345 --debug --trace --logfile logs.txt
+```
+  * will start the daemon using the config file at my-config.yaml
+  * running on port 12345
+  * debug mode activated
+  * trace mode activated
+  * outputting logs to logs.txt
+
+---
+
+#### Documenting the `runCmd` variable
+
+The `runCmd` variable is a Cobra command that runs a unikernel instance from a compiled image. It requires a unik-managed volume to be attached and mounted to each mount point specified at image compilation time. Environment variables can be set at runtime through the use of the -env flag.
+
+Example usage:
+```
+unik run --instanceName newInstance --imageName myImage --vol myVol:/mount1 --vol yourVol:/mount2 --env foo=bar --env another=one --instanceMemory 1234
+```
+  * will create and run an instance of myImage on the provider environment myImage is compiled for
+  * instance will be named newInstance
+  * instance will attempt to mount unik-managed volume myVol to /mount1
+  * instance will attempt to mount unik-managed volume yourVol to /mount2
+  * instance will boot with env variable `foo` set to `bar`
+  * instance will boot with env variable `another` set to `one`
+  * instance will get 1234 MB of memory
+  * note that run must take exactly one --vol argument for each mount point defined in the image specification

@@ -19,6 +19,9 @@ var instanceName, imageName string
 var volumes, envPairs []string
 var instanceMemory, debugPort int
 
+// runCmd is the command to run a unikernel instance from a compiled image.
+// It requires a unik-managed volume to be attached and mounted to each mount point specified at image compilation time.
+// Environment variables can be set at runtime through the use of the -env flag.
 var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Run a unikernel instance from a compiled image",
@@ -112,19 +115,29 @@ Example usage:
 
 func init() {
 	RootCmd.AddCommand(runCmd)
+	// instanceName flag specifies the name to give the instance. Must be unique.
 	runCmd.Flags().StringVar(&instanceName, "instanceName", "", "<string,required> name to give the instance. must be unique")
+	// imageName flag specifies the image to use for the instance.
 	runCmd.Flags().StringVar(&imageName, "imageName", "", "<string,required> image to use")
+	// env flag sets any number of environment variables for the instance. Must be in the format KEY=VALUE.
 	runCmd.Flags().StringSliceVar(&envPairs, "env", []string{}, "<string,repeated> set any number of environment variables for the instance. must be in the format KEY=VALUE")
+	// vol flag specifies one volume id and the corresponding mount point to attach to the instance at boot time.
 	runCmd.Flags().StringSliceVar(&volumes, "vol", []string{}, `<string,repeated> each --vol flag specifies one volume id and the corresponding mount point to attach
 	to the instance at boot time. volumes must be attached to the instance for each mount point expected by the image.
 	run 'unik image <image_name>' to see the mount points required for the image.
 	specified in the format 'volume_id:mount_point'`)
+	// instanceMemory flag specifies the amount of memory (in MB) to assign to the instance. If none is given, the provider default will be used.
 	runCmd.Flags().IntVar(&instanceMemory, "instanceMemory", 0, "<int, optional> amount of memory (in MB) to assign to the instance. if none is given, the provider default will be used")
+	// noCleanup flag is for debugging; do not clean up artifacts for instances that fail to launch.
 	runCmd.Flags().BoolVar(&noCleanup, "no-cleanup", false, "<bool, optional> for debugging; do not clean up artifacts for instances that fail to launch")
+	// debugMode flag runs the instance in Debug mode so GDB can be attached. Currently only supported on QEMU provider.
 	runCmd.Flags().BoolVar(&debugMode, "debug-mode", false, "<bool, optional> runs the instance in Debug mode so GDB can be attached. Currently only supported on QEMU provider")
+	// debugPort flag specifies the target port for debugger tcp connections. Used in conjunction with --debug-mode.
 	runCmd.Flags().IntVar(&debugPort, "debug-port", 3001, "<int, optional> target port for debugger tcp connections. used in conjunction with --debug-mode")
 }
 
+// connectDebugger connects to the debugger and handles the communication between the debugger and the instance.
+// It initializes a TCP connection to the specified debug port and reads/writes data between the debugger and the instance.
 func connectDebugger() {
 	addr := fmt.Sprintf("%v:%v", strings.Split(host, ":")[0], debugPort)
 	conn, err := net.Dial("tcp", addr)

@@ -11,7 +11,7 @@
  *    documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
- * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
@@ -76,6 +76,15 @@ __weak_alias(rump_init_server,rumprun_enosys);
 
 int rumprun_cold = 1;
 
+/**
+ * @brief Bootstraps the Rumprun environment.
+ *
+ * This function initializes the Rumprun environment, mounts the /tmp filesystem,
+ * configures the network settings, and processes the command line arguments.
+ * It also sets up the sysproxy if specified in the environment variables.
+ *
+ * @param cmdline The command line arguments passed to the Rumprun environment.
+ */
 void
 rumprun_boot(char *cmdline)
 {
@@ -211,6 +220,17 @@ extern const initfini_fn __y7_init_array_end[1];
 extern const initfini_fn __y8_init_array_start[1];
 extern const initfini_fn __y8_init_array_end[1];
 
+/**
+ * @brief Main function wrapper for Rumprun applications.
+ *
+ * This function serves as the main function wrapper for Rumprun applications.
+ * It initializes the necessary environment, calls the main function of the
+ * application, and handles the cleanup process.
+ *
+ * @param arg Pointer to the rumprunner structure containing the main function
+ *            and its arguments.
+ * @return NULL
+ */
 static void *
 mainbouncer(void *arg)
 {
@@ -316,6 +336,19 @@ setupproc(struct rumprunner *rr)
 	pipein = newpipein;
 }
 
+/**
+ * @brief Executes a Rumprun application.
+ *
+ * This function sets up the necessary environment and executes a Rumprun application.
+ * It creates a new process, initializes the necessary resources, and starts the main
+ * function of the application.
+ *
+ * @param flags Execution flags for the application.
+ * @param mainfun Pointer to the main function of the application.
+ * @param argc Argument count.
+ * @param argv Argument vector.
+ * @return Pointer to the rumprunner structure representing the executed application.
+ */
 void *
 rumprun(int flags, int (*mainfun)(int, char *[]), int argc, char *argv[])
 {

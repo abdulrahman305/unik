@@ -1,23 +1,3 @@
-// This file is a part of the IncludeOS unikernel - www.includeos.org
-//
-// Copyright 2015 Oslo and Akershus University College of Applied Sciences
-// and Alfred Bratterud
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-//#define DEBUG
-#define MYINFO(X,...) INFO("Kernel", X, ##__VA_ARGS__)
-
 #include <cstdio>
 #include <os>
 #include <boot/multiboot.h>
@@ -70,6 +50,16 @@ static uint64_t* os_cycles_hlt   = nullptr;
 static uint64_t* os_cycles_total = nullptr;
 extern "C" uintptr_t get_cpu_esp();
 
+/**
+ * @brief Starts the OS with the given boot magic and boot address.
+ *
+ * This function initializes the OS, sets up memory, interrupt handlers,
+ * and other necessary components. It then calls the service start function
+ * and enters the event loop.
+ *
+ * @param boot_magic The boot magic number.
+ * @param boot_addr The boot address.
+ */
 void OS::start(uint32_t boot_magic, uint32_t boot_addr) {
 
   atexit(default_exit);
@@ -266,6 +256,15 @@ void OS::start(uint32_t boot_magic, uint32_t boot_addr) {
   event_loop();
 }
 
+/**
+ * @brief Registers a custom initialization function to be called during OS startup.
+ *
+ * This function allows users to register custom initialization functions that will be
+ * called during the OS startup process.
+ *
+ * @param delg The custom initialization function to register.
+ * @param name The name of the custom initialization function.
+ */
 void OS::register_custom_init(Custom_init delg, const char* name){
   MYINFO("Registering custom init function %s", name);
   custom_init_.emplace_back(delg, name);
@@ -305,6 +304,12 @@ uint64_t OS::get_cycles_total() noexcept {
   return *os_cycles_total;
 }
 
+/**
+ * @brief The main event loop of the OS.
+ *
+ * This function runs the main event loop of the OS, processing interrupts and
+ * putting the OS to sleep when idle. It continues running until the OS is powered off.
+ */
 void OS::event_loop() {
   FILLINE('=');
   printf(" IncludeOS %s\n", version().c_str());

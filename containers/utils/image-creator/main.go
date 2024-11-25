@@ -18,16 +18,16 @@ import (
 	"github.com/pborman/uuid"
 )
 
+// volumeslice is a custom type that represents a slice of RawVolume objects.
 type volumeslice []unikos.RawVolume
 
+// String returns a string representation of the volumeslice.
 func (m *volumeslice) String() string {
-
 	return fmt.Sprintf("%v", ([]unikos.RawVolume)(*m))
 }
 
-// The second method is Set(value string) error
+// Set parses a string value and appends a new RawVolume to the volumeslice.
 func (m *volumeslice) Set(value string) error {
-
 	volparts := strings.Split(value, ",")
 
 	if (len(volparts) != 1) && (len(volparts) != 2) {
@@ -45,6 +45,7 @@ func (m *volumeslice) Set(value string) error {
 	return nil
 }
 
+// verifyPreConditions checks if the necessary loop device is available.
 func verifyPreConditions() {
 	_, err := os.Stat("/dev/loop0")
 	if os.IsNotExist(err) {
@@ -52,6 +53,8 @@ func verifyPreConditions() {
 	}
 }
 
+// main is the entry point of the program. It parses command-line flags, verifies preconditions,
+// and creates a volume image based on the provided parameters.
 func main() {
 	log.SetLevel(log.DebugLevel)
 

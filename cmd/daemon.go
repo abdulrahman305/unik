@@ -21,6 +21,11 @@ import (
 var daemonRuntimeFolder, daemonConfigFile, logFile string
 var debugMode, trace bool
 
+// daemonCmd is the command to start the unik daemon process.
+// It requires docker to be installed and running on the system.
+// Necessary docker containers must be built for the daemon to work properly.
+// The daemon also requires a configuration file with credentials and configuration info
+// for desired providers.
 var daemonCmd = &cobra.Command{
 	Use:   "daemon",
 	Short: "Runs the unik backend (daemon)",
@@ -96,16 +101,27 @@ Example usage:
 
 func init() {
 	RootCmd.AddCommand(daemonCmd)
+	// daemonRuntimeFolder flag specifies the runtime folder where state is stored.
+	// Default is $HOME/.unik/
 	daemonCmd.Flags().StringVar(&daemonRuntimeFolder, "d", getHomeDir()+"/.unik/", "daemon runtime folder - where state is stored. (default is $HOME/.unik/)")
+	// daemonConfigFile flag specifies the path to the daemon config file.
+	// Default is {RuntimeFolder}/daemon-config.yaml
 	daemonCmd.Flags().StringVar(&daemonConfigFile, "f", "", "daemon config file (default is {RuntimeFolder}/daemon-config.yaml)")
+	// port flag specifies the listening port for the daemon.
+	// Default is 3000
 	daemonCmd.Flags().IntVar(&port, "port", 3000, "<int, optional> listening port for daemon")
+	// debugMode flag enables more verbose logging for the daemon.
 	daemonCmd.Flags().BoolVar(&debugMode, "debug", false, "<bool, optional> more verbose logging for the daemon")
+	// trace flag adds stack trace to daemon logs.
 	daemonCmd.Flags().BoolVar(&trace, "trace", false, "<bool, optional> add stack trace to daemon logs")
+	// logFile flag specifies the output file for logs in addition to stdout.
 	daemonCmd.Flags().StringVar(&logFile, "logfile", "", "<string, optional> output logs to file (in addition to stdout)")
 }
 
 var daemonConfig config.DaemonConfig
 
+// readDaemonConfig reads the daemon configuration file and unmarshals its content into the daemonConfig variable.
+// It returns an error if the file cannot be read or if the content is not valid YAML.
 func readDaemonConfig() error {
 	data, err := ioutil.ReadFile(daemonConfigFile)
 	if err != nil {

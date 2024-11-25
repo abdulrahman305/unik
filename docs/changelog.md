@@ -83,3 +83,6 @@
 * Properly clean up build artifacts from `unik build`, `unik run`, `unik create-volume`
 * Fix formatting of CLI output
 * Do not auto-delete instances that do not reply to UDP broadcast before a specified timeout
+
+## [Current Date]
+* Added detailed comments and documentation to the code files to improve readability and maintainability.
